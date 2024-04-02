@@ -10,13 +10,13 @@ inbox_path = r'C:\Users\Youri\Основное хранилище Obsidian\Те�
 # Path to the folder where received pictures should be stored
 photo_path = r'C:\Users\Youri\Основное хранилище Obsidian\Телеграм\attachments'
 
-# Path to the folder where received pictures should be stored
+# Path to the folder where received videos should be stored
 video_path = r'C:\Users\Youri\Основное хранилище Obsidian\Телеграм\attachments'
 
 # Path to the folder where received voice messages should be stored
 voice_path = r'C:\Users\Youri\Основное хранилище Obsidian\Телеграм\attachments'
 
-# Path to the folder where received voice messages should be stored
+# Path to the folder where received voice animations should be stored
 animation_path = r'C:\Users\Youri\Основное хранилище Obsidian\Телеграм\attachments'
 
 # Path to the folder where received audio messages should be stored

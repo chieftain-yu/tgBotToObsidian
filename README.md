@@ -1,1 +1,2 @@
 # tgBotToObsidian
+Some example text

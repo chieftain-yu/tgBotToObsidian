@@ -1,7 +1,7 @@
 ﻿import aiohttp
 import asyncio
-import config_sample as config
-#import config
+#import config_sample as config
+import config
 #You should put your real token to config and use it in your real config.py
 import logging
 import os

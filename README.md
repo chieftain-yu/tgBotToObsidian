@@ -1,2 +1,2 @@
 # tgBotToObsidian
-Some example text
+This software is based on 

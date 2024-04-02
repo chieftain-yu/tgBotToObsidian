@@ -8,6 +8,7 @@ config.py
 messages*.txt
 bot.log
 .gitignore
+*.sln
 
 # User-specific files
 *.rsuser

@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#Hiding real config file
+config.py
+messages*.txt
+bot.log
+
 # User-specific files
 *.rsuser
 *.suo

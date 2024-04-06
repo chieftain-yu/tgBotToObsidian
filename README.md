@@ -38,7 +38,7 @@ pip install torch
 
 4. Install compiled [FFMPEG](https://ffmpeg.org/download.html) and add the path to the executable (in Windows — ffmpeg.exe) to the ==path== environment variable. Go to the folder containing this script and make sure that ==ffmpeg.exe== could be started there.
 5. Create your own bot using https://t.me/BotFather.
-6. Rename config_sample.py to config.py.
+6. Make environment variable _tgBot2ObsToken_ with you telegram bot token (it seems like 1234567890:abcdefghijklmnopqrstuvwxyzABCDEFGHI).
 7. Paste the token received from ==@botfather== into the appropriate parameter in ==config.py== and change the rest of the parameters in ==config.py== as desired.
 8. (Optional) Add the bot created above to a private Telegram group and make it administrator so it can read messages.
  

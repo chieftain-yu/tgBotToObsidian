@@ -1,4 +1,6 @@
-﻿import aiohttp
+﻿import gettext
+import token
+import aiohttp
 import asyncio
 #import config_sample as config
 import config
@@ -90,7 +92,9 @@ if 'log_level' in dir(config) and config.log_level >= 1:
     log = logging.getLogger()
 
 # Bot token can be obtained via https://t.me/BotFather
-bot = Bot(token = config.token)
+token=os.environ.get("tgBot2ObsToken")    
+print (f'{token}')
+bot = Bot(token)
 
 # Готовим распознавание речи
 if config.recognize_voice:
@@ -147,15 +151,15 @@ def find_entities(message: Message) -> str:
 # Функция переформатирования текста для md
 async def embed_formatting(message: Message) -> str:
     # If the message contains any formatting (inclusing inline links), add corresponding Markdown markup
-    note = message.text
+    note = message['text']
 
     if not format_messages():
         return note
 
-    if not message.entities:
+    if not message['entities']:
         return note
 
-    entities = message.entities
+    entities = message['entities']
     formatted_note = ''
     try:
         note_u16 = to_u16(note)
@@ -354,7 +358,7 @@ def parse_entities(text: bytes,
 #!!!
 def is_single_url(message: Message) -> bool:
     # assuming there is atleast one entity
-    entities_single_url = message.entities
+    entities_single_url = message['entities']
     url_entity = entities_single_url[0]
     if url_entity.type == "url":
         return True

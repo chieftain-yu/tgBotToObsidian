@@ -35,6 +35,9 @@ class Note:
         
 basic_log = False
 debug_log = False
+#Переработка пути - неверно работало в Fedora40
+def osPathJoin (path: str, file:str) -> str:
+    return os.path.normpath (path+os.sep+file)
 
 def new_func():
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO, filename = 'bot.log', encoding = 'UTF-8', datefmt = '%Y-%m-%d %H:%M:%S')
@@ -151,15 +154,16 @@ def find_entities(message: Message) -> str:
 # Функция переформатирования текста для md
 async def embed_formatting(message: Message) -> str:
     # If the message contains any formatting (inclusing inline links), add corresponding Markdown markup
-    note = message['text']
+    #todo: find why the message is not subscriptable
+    note = message.text
 
     if not format_messages():
         return note
 
-    if not message['entities']:
+    if not message.entities:
         return note
 
-    entities = message['entities']
+    entities = message.entities
     formatted_note = ''
     try:
         note_u16 = to_u16(note)
@@ -245,7 +249,7 @@ def get_note_file_name_parts(curr_date):
 
 def get_note_name(curr_date) -> str:
     parts = get_note_file_name_parts(curr_date)
-    return os.path.join(config.inbox_path, ''.join(parts) + '.md')
+    return osPathJoin(config.inbox_path, ''.join(parts) + '.md')
 
 def create_media_file_name(message: Message, suffix = 'media', ext = 'jpg') -> str:
     # ToDo: переделать на дату отправки сообщения
@@ -458,12 +462,12 @@ def unique_filename(file: str, path: str) -> str:
     if not os.path.exists(path):
         os.makedirs(path)
     # check if file exists
-    if not os.path.exists(os.path.join(path, file)):
+    if not os.path.exists(osPathJoin(path, file)):
         return file
     # get file name and extension
     filename, filext = os.path.splitext(file)
     # get full file path without extension only
-    filexx = os.path.join(path, filename)
+    filexx = osPathJoin(path, filename)
     # create incrementing variable
     i = 1
     # determine incremented filename
@@ -480,7 +484,7 @@ def unique_indexed_filename(file: str, path: str) -> str:
     # get file name and extension
     filename, filext = os.path.splitext(file)
     # get full file path without extension only
-    filexx = os.path.join(path, filename)
+    filexx = osPathJoin(path, filename)
     # create incrementing variable
     i = 1
     # determine incremented filename
@@ -489,7 +493,7 @@ def unique_indexed_filename(file: str, path: str) -> str:
         i += 1
     unique_indexed_filename = f'{filename}{i:02}{filext}'
     # create file to avoid reusing the same file name more than once
-    with open(os.path.join(path, unique_indexed_filename), 'w') as f:
+    with open(osPathJoin(path, unique_indexed_filename), 'w') as f:
         f.write('')
     return unique_indexed_filename
 
@@ -650,7 +654,7 @@ async def handle_photo(message: Message, bot: Bot):
     log_basic(photo)
     file_name = unique_indexed_filename(create_media_file_name(message, 'pic', 'jpg'), config.photo_path) # or photo.file_id + '.jpg'
     log_basic('file created')
-    full_file_name = os.path.join(config.photo_path, file_name)
+    full_file_name = osPathJoin(config.photo_path, file_name)
     message.reply(f'Сохранил файл под именем {full_file_name}')
     print(f'Saved photo as {file_name}')
     await bot.download(
@@ -661,7 +665,7 @@ async def handle_photo(message: Message, bot: Bot):
     photo_and_caption = f'{forward_info}![[{file_name}]]\n{await get_formatted_caption(message)}'
     note.text=photo_and_caption
     save_message(note)
-    await answer_message(message, f'Сохранил фото')
+    await answer_message(message, f'Сохранил фото под именем {full_file_name}')
   
 @dp.message(F.voice)
 async def handle_voice_message(message: Message):
@@ -678,7 +682,7 @@ async def handle_voice_message(message: Message):
     voice = message.voice.file_id
     path = config.voice_path
     file_name = unique_indexed_filename(create_media_file_name(message, 'voice', 'ogg'), config.voice_path)
-    full_file_name = os.path.join(config.voice_path, file_name)
+    full_file_name = osPathJoin(config.voice_path, file_name)
     log_basic(f'Received voice message {file_name} from @{message.from_user.username}')
     log_message(message)
     note = note_from_message(message)
@@ -719,7 +723,7 @@ async def handle_voice_message(message: Message):
     audio = message.audio.file_id
     path = config.audio_path
     file_name = unique_filename(message.audio.file_name, config.audio_path)
-    full_file_name = os.path.join(config.audio_path, file_name)
+    full_file_name = osPathJoin(config.audio_path, file_name)
     log_basic(f'Received audio message {full_file_name} from @{message.from_user.username}')
     log_message(message)
     note = note_from_message(message)
@@ -772,15 +776,15 @@ async def handle_document(message: Message):
 #    if message.chat.id != config.my_chat_id: return
     print  ('DOCUMENT ')
     file_name = unique_filename(message.document.file_name, config.photo_path)
-    full_file_name = os.path.join(config.photo_path, file_name)
-    log_basic(f'Received document {file_name} from @{message.from_user.username}')
+    full_file_name = osPathJoin(config.photo_path, file_name)
+    log_basic(f'Received document {file_name} from @{message.from_user.username}. CFP= {config.photo_path}, FN={file_name}, Full_file_nane is {full_file_name}')
     log_message(message)
     note = note_from_message(message)
     print(f'Got document: {file_name}')
     try:    
         file = await bot.get_file(message.document.file_id)
         await bot.download_file(file.file_path, full_file_name)
-        await answer_message(message, f'Сохранил под именем {file_name}')
+        await answer_message(message, f'Сохранил под именем {file_name}, OPS={os.path.sep} OPSep={os.path.pathsep}')
     except Exception as e:
         log_basic(f'Exception: {e}')
         await answer_message(message, f'🤷‍♂️ {e}')
@@ -791,7 +795,7 @@ async def handle_document(message: Message):
     # Если mime type = "audio/*", распознаем речь аналогично ContentType.AUDIO
         await bot.send_chat_action(chat_id=message['from']['id'], action=types.ChatActions.TYPING)
 
-        file_full_path = os.path.join(config.photo_path, file_name)
+        file_full_path = osPathJoin(config.photo_path, file_name)
         note_stt = await stt(file_full_path)
         try:
             await answer_message(message, note_stt)
@@ -843,7 +847,7 @@ async def handle_animation(message: Message):
     log_basic(f'Received animation {file_name} from @{message.from_user.username}')
     print(f'Got animation: {file_name}')
     note = note_from_message(message)
-    full_file_name = os.path.join(config.animation_path, file_name)
+    full_file_name = osPathJoin(config.animation_path, file_name)
     try:      
         file = await bot.get_file(message.document.file_id)
         await bot.download_file(file.file_path, full_file_name)
@@ -864,7 +868,7 @@ async def handle_video(message: Message):
     log_basic(f'Received video {file_name} from @{message.from_user.username}')
     print(f'Got video: {file_name}')
     note = note_from_message(message)
-    full_file_name = os.path.join(config.video_path, file_name)
+    full_file_name = osPathJoin(config.video_path, file_name)
     try:       
         file = await bot.get_file(message.video.file_id)
         await bot.download_file(file.file_path, full_file_name)
@@ -885,7 +889,7 @@ async def handle_video_note(message: Message):
     log_basic(f'Received video note from @{message.from_user.username}')
     print(f'Got video note: {file_name}')
     note = note_from_message(message)
-    full_file_name = os.path.join(config.video_path, file_name)
+    full_file_name = osPathJoin(config.video_path, file_name)
     try:    
         file = await bot.get_file(message.video_note.file_id)
         await bot.download_file(file.file_path, full_file_name)

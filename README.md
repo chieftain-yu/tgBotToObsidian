@@ -27,6 +27,7 @@ The bot understands both messages sent directly to it and forward ones.
 pip install aiogram
 pip install beautifulsoup4
 pip install lxml
+pip install config
 ```
 
 3. Install [Whisper](https://github.com/openai/whisper) and Pytorch modules if you need voice messages get recognized to text:
@@ -39,7 +40,7 @@ pip install torch
 4. Install compiled [FFMPEG](https://ffmpeg.org/download.html) and add the path to the executable (in Windows — ffmpeg.exe) to the ==path== environment variable. Go to the folder containing this script and make sure that ==ffmpeg.exe== could be started there.
 5. Create your own bot using https://t.me/BotFather.
 6. Make environment variable _tgBot2ObsToken_ with you telegram bot token (it seems like 1234567890:abcdefghijklmnopqrstuvwxyzABCDEFGHI).
-7. Paste the token received from ==@botfather== into the appropriate parameter in ==config.py== and change the rest of the parameters in ==config.py== as desired.
+7. Change parameters in _config.py_ as desired.
 8. (Optional) Add the bot created above to a private Telegram group and make it administrator so it can read messages.
  
 

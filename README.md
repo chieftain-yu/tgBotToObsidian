@@ -37,7 +37,7 @@ pip install -U openai-whisper
 pip install torch
 ```
 
-4. Install compiled [FFMPEG](https://ffmpeg.org/download.html) and add the path to the executable (in Windows — ffmpeg.exe) to the ==path== environment variable. Go to the folder containing this script and make sure that ==ffmpeg.exe== could be started there.
+4. Install compiled [FFMPEG](https://ffmpeg.org/download.html) and add the path to the executable (in Windows — ffmpeg.exe) to the _path_ environment variable. Go to the folder containing this script and make sure that _ffmpeg.exe_ could be started there.
 5. Create your own bot using https://t.me/BotFather.
 6. Make environment variable _tgBot2ObsToken_ with you telegram bot token (it seems like 1234567890:abcdefghijklmnopqrstuvwxyzABCDEFGHI).
 7. Change parameters in _config.py_ as desired.

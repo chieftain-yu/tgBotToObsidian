@@ -435,7 +435,7 @@ async def stt(audio_file_path) -> str:
 
     log_basic('Audio recognition started')
     print('Audio recognition started')
-    result = model.transcribe(audio_file_path, verbose = False, language = 'ru')
+    result = model.transcribe(audio_file_path, verbose = False, language = config.resolving_language)
     # Clear GPU memory
     del model
     gc.collect()

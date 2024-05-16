@@ -40,6 +40,8 @@ recognize_audio = True
 # tiny (x32, 78MB), base(x16, 145MB), small(x6, 484MB), medium(x2, 1.5GB), large(x1, 3.1GB).
 # These are general models. English-only models also exist. Check https://github.com/openai/whisper .
 whisper_model = 'medium'
+# Language of recognized text
+resolving_language='ru'
 
 # The following set of options define file name of the note where Telegram posts appear.
 # Resulting file name consists of concatenated prefix, date, and postfix.

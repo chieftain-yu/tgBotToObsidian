@@ -59,3 +59,8 @@ python tg2obsidian_bot.py
 ## Known issues
 
 Check in the [Issues](https://github.com/chieftain-yu/tgBotToObsidian/issues) section.
+
+## Nota bene
+If you want to start bot as a service, you should use _pip install_ with all depenencies to install them for service's user.
+You can use [this guide](https://tecadmin.net/setup-autorun-python-script-using-systemd/) to create service.
+I use _After=graphical.target_, _WantedBy=graphical.target_ and _Environment="tgBot2ObsToken=1234567890:abcdefghijklmnopqrstuvwxyzABCDEFGHI"_ in _.service_ file

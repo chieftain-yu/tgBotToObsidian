@@ -1,5 +1,6 @@
-﻿import gettext
+﻿#import gettext
 import token
+from turtle import delay
 import aiohttp
 import asyncio
 #import config_sample as config
@@ -15,13 +16,13 @@ import time
 from bs4 import BeautifulSoup
 from datetime import datetime as dt
 from pathlib import Path
-import urllib.request
+#import urllib.request
 
-from aiogram import Bot, Dispatcher, F, Router, types, html
+from aiogram import Bot, Dispatcher, F, types #Router, html
 #from aiogram.enums import ParseMode
-from aiogram.filters import Command, CommandStart
-from aiogram.types import ContentType, File, Message, MessageEntity
-from aiogram.utils.markdown import hbold
+from aiogram.filters import CommandStart #Command, 
+from aiogram.types import File, Message, MessageEntity #ContentType, 
+#from aiogram.utils.markdown import hbold
 
 #Заявляем класс заметки
 class Note:
@@ -95,8 +96,10 @@ if 'log_level' in dir(config) and config.log_level >= 1:
     log = logging.getLogger()
 
 # Bot token can be obtained via https://t.me/BotFather
-token=os.environ.get("tgBot2ObsToken")    
-print (f'{token}')
+if 'tgBot2ObsToken' in dir(config):
+    token=os.environ.get("tgBot2ObsToken")    
+    print (f'{token}')
+    log_debug(f'token is {token}')
 bot = Bot(token)
 
 # Готовим распознавание речи
@@ -155,7 +158,13 @@ def find_entities(message: Message) -> str:
 async def embed_formatting(message: Message) -> str:
     # If the message contains any formatting (inclusing inline links), add corresponding Markdown markup
     #todo: find why the message is not subscriptable
-    note = message.text
+#todo: проверка наличия caption. Если есть, то возвращать его, если нет - от текста
+    if message.caption:     
+        note = message.caption,
+        entities = message.caption_entities
+    else:
+        note = message.text
+        entities = message.entities
 
     if not format_messages():
         return note
@@ -163,15 +172,18 @@ async def embed_formatting(message: Message) -> str:
     if not message.entities:
         return note
 
-    entities = message.entities
     formatted_note = ''
     try:
         note_u16 = to_u16(note)
+        print ('started')
         formatted_note = parse_entities(note_u16, entities, 0, len(note_u16))
+        print ('OK')
+        #todo: Проблема в этом условии. Некоррректно обрабатывает ссылки
         if create_link_info() and is_single_url(message):
             url_entity = entities[0]
             url = url_entity.get_text(note) if url_entity['type'] == "url" else url_entity['url']
             formatted_note += await get_url_info_formatting(url)
+        print ('OK2')
     except Exception as e:
         # If the message does not contain any formatting
         await message.reply(f'🤷‍♂️ {e}')
@@ -231,13 +243,8 @@ async def handle_file(file: File, file_name: str, path: str):
     await bot.download_file(file_path=file.file_path, destination=f"{path}/{file_name}")
 
 async def get_formatted_caption(message: Message) -> str:
-
-    if message.caption:
-        doc_message = {
-            'text': message.caption,
-            'entities': message.caption_entities,
-            }
-        return await embed_formatting(doc_message)
+    if message.caption:     
+        return await embed_formatting(message)
     else:
         return ''
     
@@ -302,7 +309,7 @@ def parse_entities(text: bytes,
     offset: int,
     end: int) -> str:
     formatted_note = ''
-
+#todo: решить проблемы парсинга ссылок
     for entity_index, entity in enumerate(entities):
         entity_start = entity.offset * 2
         if entity_start < offset:
@@ -362,7 +369,8 @@ def parse_entities(text: bytes,
 #!!!
 def is_single_url(message: Message) -> bool:
     # assuming there is atleast one entity
-    entities_single_url = message['entities']
+    print ('URL start')
+    entities_single_url = message.entities
     url_entity = entities_single_url[0]
     if url_entity.type == "url":
         return True
@@ -639,6 +647,7 @@ async def command_start_handler(message: Message) -> None:
     # and the target chat will be passed to :ref:`aiogram.methods.send_message.SendMessage`
     # method automatically or call API method directly via
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
+    print  ('COMMAND')
     log_basic(f'Starting chat with the user @{message.from_user.username} ({message.from_user.first_name} {message.from_user.last_name}, user_id = {message.from_user.id}), chat_id = {message.chat.id} ({message.chat.title})')
     reply_text = f'Hello {message.from_user.full_name}!\n\nI`m a private bot, I save messages from a private Telegram group to Obsidian inbox.\n\nYour Id: {message.from_user.id}\nThis chat Id: {message.chat.id}\n'
     await message.reply(reply_text)
@@ -662,6 +671,8 @@ async def handle_photo(message: Message, bot: Bot):
         destination=f"{full_file_name}"
     )
     forward_info = get_forward_info(message)
+    #todo устранить гонку get_formatted_caption(message)
+#Что-то неясное
     photo_and_caption = f'{forward_info}![[{file_name}]]\n{await get_formatted_caption(message)}'
     note.text=photo_and_caption
     save_message(note)
@@ -819,6 +830,7 @@ async def handle_document(message: Message):
 @dp.message(F.contact)
 async def handle_contact(message: Message):
 #    if message.chat.id != config.my_chat_id: return
+    print  ('CONTACT')    
     log_basic(f'Received contact from @{message.from_user.username}')
     log_message(message)
     note = note_from_message(message)
@@ -830,6 +842,7 @@ async def handle_contact(message: Message):
 @dp.message(F.location)
 async def handle_location(message: Message):
 #    if message.chat.id != config.my_chat_id: return
+    print  ('LOCATION')    
     log_basic(f'Received location from @{message.from_user.username}')
     log_message(message)
     print(f'Got location')
@@ -842,6 +855,7 @@ async def handle_location(message: Message):
 #Не отлажено - не найден пример для проверки
 async def handle_animation(message: Message):
 #    if message.chat.id != config.my_chat_id: return
+    print  ('ANIMATION')    
     log_message(message)
     file_name = unique_filename(message.document.file_name, config.animation_path)
     log_basic(f'Received animation {file_name} from @{message.from_user.username}')
@@ -863,6 +877,7 @@ async def handle_animation(message: Message):
 @dp.message(F.video)
 async def handle_video(message: Message):
 #    if message.chat.id != config.my_chat_id: return
+    print  ('VIDEO')    
     log_message(message)
     file_name = unique_filename(message.video.file_name, config.video_path)
     log_basic(f'Received video {file_name} from @{message.from_user.username}')
@@ -884,6 +899,7 @@ async def handle_video(message: Message):
 @dp.message(F.video_note)
 async def handle_video_note(message: Message):
 #    if message.chat.id != config.my_chat_id: return
+    print  ('VIDEONOTE')    
     log_message(message)
     file_name = unique_indexed_filename(create_media_file_name(message, 'video', 'mp4'), config.photo_path)
     log_basic(f'Received video note from @{message.from_user.username}')

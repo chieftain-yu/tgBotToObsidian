@@ -1,7 +1,7 @@
 # Bot token issued by @botfather (Telegram)
 from aiogram.types import animation
 
-
+tgBot2ObsToken = 1234567890:qwertyuiop[]';lkjhgfdsazxcvbnm,./']
 # Path to the folder where new notes should be created
 inbox_path = r'C:\Users\Youri\Основное хранилище Obsidian\Телеграм'
 

@@ -16,6 +16,7 @@ bot.log
 *.user
 *.userosscache
 *.sln.docstates
+config.py
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
